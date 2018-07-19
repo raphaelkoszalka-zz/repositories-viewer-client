@@ -6,11 +6,11 @@ class HeaderComponent extends Component {
         <nav className="navbar navbar-default">
           <div className="container-fluid">
             <div className="navbar-header">
-              <a className="navbar-brand" href="#">Repo Analyzer</a>
+              <a className="navbar-brand">Repo Analyzer</a>
             </div>
             <div className="collapse navbar-collapse" id="header-navbar">
               <ul className="nav navbar-nav navbar-right">
-                <li><a href="#">Link</a></li>
+                <li><a>Link</a></li>
               </ul>
             </div>
           </div>

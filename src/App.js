@@ -3,10 +3,18 @@ import BrowserRouter from "react-router-dom/es/BrowserRouter";
 import Switch from "react-router-dom/es/Switch";
 import Route from "react-router-dom/es/Route";
 import LandingPage from './pages/LandingPage/LandingPage';
-import ListPage from './pages/ListPage/ListPage';
 import HeaderComponent from "./components/HeaderComponent/HeaderComponent";
 
 class App extends Component {
+
+  constructor() {
+    super();
+    const storedSearches = localStorage.getItem('storedSearches');
+    if(!storedSearches) {
+      localStorage.setItem('storedSearches', JSON.stringify([]));
+    }
+  }
+
   render() {
     return (
         <section>
@@ -15,7 +23,6 @@ class App extends Component {
             <Switch>
               {/* @todo: loop through RouteArray from Routes */}
               <Route path="/" exact={true} component={ LandingPage } />
-              <Route path="/list" exact={true} component={ ListPage } />
             </Switch>
           </BrowserRouter>
         </section>

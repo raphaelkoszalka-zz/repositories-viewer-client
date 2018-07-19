@@ -1,9 +1,11 @@
 import React, { Component } from 'react';
 import FormComponent from "../../components/FormComponent/FormComponent";
-// import HttpRequest from "../../services/HttpService";
-// import { AppConstants } from "../../AppConstants";
+import TableComponent from "../../components/TableComponent/TableComponent";
+import HttpRequest from "../../services/HttpServices";
 
 class LandingPage extends Component {
+
+  service = new HttpRequest();
 
   constructor() {
     super();
@@ -11,13 +13,16 @@ class LandingPage extends Component {
   }
 
   static defaultState() {
-    return { user: false, content: {} }
+    return { user: false, content: {}, searches: JSON.parse(localStorage.getItem('storedSearches')), ready: false }
   }
 
   render() {
-    const { user, content } = this.state;
+    const { searches } = this.state;
     return(
-        <FormComponent />
+        <div>
+          <FormComponent />
+          <TableComponent searches={searches} />
+        </div>
     )
   }
 
