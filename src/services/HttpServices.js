@@ -2,10 +2,16 @@ import superagent from 'superagent';
 
 class HttpRequest {
 
-  get(url) {
+  get(url, headers) {
+    let accept = 'application/json';
+
+    if (headers) {
+      accept =  headers;
+    }
+
     return superagent
     .get(url)
-    .set('Accept', 'application/json');
+    .set('Accept', accept);
   }
 
   post(url, payload) {

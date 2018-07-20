@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import HttpService from '../../services/HttpServices';
 import AppConstants from '../../AppConstants';
+import {DebounceInput} from "react-debounce-input";
 
 class FormComponent extends Component {
 
@@ -19,20 +20,21 @@ class FormComponent extends Component {
   }
 
   handleRepositoryGetResponse(res) {
-    // if (res.status === 404) {
-    //   this.setState( { invalidOwner: true } );
-    //   return;
-    // }
     const repositories = JSON.parse(res.text);
     this.setState( { invalidOwner: false, repositoryList: repositories, selectedRepository: repositories[0] } );
   }
 
   handleRepositoryOwnerChange(event) {
     this.setState( { repositoryOwner: event.target.value });
-    if (this.state.repositoryOwner === 'raphaelkoszalka') {
       this.service.get(AppConstants.GITHUB_USER_REPOSITORIES.replace('{OWNER}', this.state.repositoryOwner))
-      .then( (res) => { this.handleRepositoryGetResponse(res); });
-    }
+      .then( (res) => {
+        this.handleRepositoryGetResponse(res);
+      })
+      .catch( (error) => {
+        if (error.status === 404) {
+          this.setState( { invalidOwner: true } );
+        }
+      });
   }
 
   handleRepositoryChange(event) {
@@ -61,14 +63,11 @@ class FormComponent extends Component {
                 <div className="form-group">
                   <label htmlFor="repositoryNameElm" className="col-lg-2 control-label">Owner</label>
                   <div className="col-lg-10">
-                    <input
-                        value={repositoryOwner}
-                        onChange={this.handleRepositoryOwnerChange}
-                        type="text"
+                    <DebounceInput
                         className="form-control"
-                        id="repositoryNameElm"
-                        placeholder="Profile"
-                        name="repositoryOwner"
+                        debounceTimeout={1500}
+                        onChange={this.handleRepositoryOwnerChange}
+                        placeholder="Repository Owner"
                     />
                     { invalidOwner && ( <span className="help-block danger">Invalid repository owner name.</span> ) }
                   </div>
