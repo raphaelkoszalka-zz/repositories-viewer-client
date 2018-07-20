@@ -18,7 +18,6 @@ class App extends Component {
   render() {
     return (
         <section>
-          <HeaderComponent />
           <BrowserRouter>
             <Switch>
               {/* @todo: loop through RouteArray from Routes */}

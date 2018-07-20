@@ -8,3 +8,7 @@ html, body {
 a {
   text-decoration: none !important;
 }
+
+#header-navbar li:hover {
+  cursor: pointer;
+}

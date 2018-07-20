@@ -30,8 +30,14 @@ class ReadmeComponent extends Component {
     }
     const readme_uri = AppConstants.GITHUB_REPOSITORY_README
     .replace('{OWNER}', owner).replace('{REPO}', name);
-    this.service.get(readme_uri, 'application/vnd.github.VERSION.html').then( res => {
+    this.service.get(readme_uri, 'application/vnd.github.VERSION.html')
+    .then( res => {
       this.setState({showModal: true, modalContent: res.text});
+    })
+    .catch( (error) => {
+      if (error.status === 404) {
+        alert('Repository does not have a README.md');
+      }
     });
   }
 
