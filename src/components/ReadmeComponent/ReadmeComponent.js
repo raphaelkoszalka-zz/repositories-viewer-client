@@ -43,7 +43,7 @@ class ReadmeComponent extends Component {
     const { showModal, modalContent } = this.state;
     return (
         <section>
-          <button className="btn btn-sm btn-default" onClick={this.getReadme}>View Readme</button>
+          <button className="btn btn-sm btn-block btn-default" onClick={this.getReadme}>View Readme</button>
           { showModal &&
           (
               <div className="readme-modal-fade">

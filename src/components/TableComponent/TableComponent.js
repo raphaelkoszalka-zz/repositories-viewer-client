@@ -14,13 +14,21 @@ class TableComponent extends Component {
     return props;
   }
 
+  static sortTableRowsByDescendingDate(rows) {
+    return rows.sort(function(a,b){
+      return new Date(b.date) - new Date(a.date);
+    });
+  }
+
   static formatTableRow(rows) {
+    rows = TableComponent.sortTableRowsByDescendingDate(rows);
     return rows.map( (row, i) =>
         (<tr key={i}>
           <td>{row.owner}</td>
           <td><PullsComponent url={row.repository.url} /></td>
           <td><CommitsComponent url={row.repository.url} /></td>
-          <td><a href={row.repository.html_url} target="_blank"><button className="btn btn-sm btn-info">Open Repo</button></a></td>
+          <td>{row.date}</td>
+          <td><a href={row.repository.html_url} target="_blank"><button className="btn btn-sm btn-block btn-default">Open {row.repository.name}</button></a></td>
           <td><ReadmeComponent repositoryOwner={row.repository.owner.login} repositoryName={row.repository.name} /></td>
         </tr>)
     );
@@ -40,6 +48,7 @@ class TableComponent extends Component {
                 <th>Owner</th>
                 <th># of PR</th>
                 <th># of Commits</th>
+                <th>Date of search</th>
                 <th>Access Link</th>
                 <th>Open Readme</th>
               </tr>
