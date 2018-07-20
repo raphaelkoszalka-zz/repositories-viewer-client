@@ -7,8 +7,8 @@ class FormComponent extends Component {
 
   service = new HttpService();
 
-  constructor() {
-    super();
+  constructor(props) {
+    super(props);
     this.state = FormComponent.defaultState();
     this.handleRepositoryOwnerChange = this.handleRepositoryOwnerChange.bind(this);
     this.handleRepositoryChange = this.handleRepositoryChange.bind(this);
@@ -44,15 +44,23 @@ class FormComponent extends Component {
   // TEMPORARY, WILL BE PERSISTED IN A BACKEND
   storeRepository(event) {
     event.preventDefault();
-    this.setState({ date: new Date() });
+    const { selectedRepository, repositoryList, repositoryOwner } = this.state;
     let storedSearches = JSON.parse(localStorage.getItem('storedSearches'));
-    storedSearches.push({ repository: this.state.selectedRepository, date: this.state.date, owner: this.state.repositoryOwner });
+
+    storedSearches.push({
+      repository: repositoryList[selectedRepository],
+      date: new Date(),
+      owner: this.state.repositoryOwner
+    });
+
     localStorage.setItem('storedSearches', JSON.stringify(storedSearches));
+
+    this.props.updateLandingPage();
   }
 
   render() {
     const { repositoryOwner, repositoryList, invalidOwner, selectedRepository } = this.state;
-    const repositories = repositoryList.map((item, i) => (<option key={i} value={JSON.stringify(item)}>{item.name}</option>));
+    const repositories = repositoryList.map((item, i) => (<option key={i} value={i}>{item.name}</option>));
 
     return (
         <div className="col-xs-12 col-md-10 col-md-offset-1">

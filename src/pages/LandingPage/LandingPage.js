@@ -10,17 +10,22 @@ class LandingPage extends Component {
   constructor() {
     super();
     this.state = LandingPage.defaultState();
+    this.handleFormComponentSubmit = this.handleFormComponentSubmit.bind(this);
   }
 
   static defaultState() {
     return { user: false, content: {}, searches: JSON.parse(localStorage.getItem('storedSearches')), ready: false }
   }
 
+  handleFormComponentSubmit() {
+    this.setState({searches: JSON.parse(localStorage.getItem('storedSearches'))});
+  }
+
   render() {
     const { searches } = this.state;
     return(
         <div>
-          <FormComponent />
+          <FormComponent updateLandingPage={this.handleFormComponentSubmit} />
           <TableComponent searches={searches} />
         </div>
     )

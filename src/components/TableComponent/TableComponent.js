@@ -10,13 +10,17 @@ class TableComponent extends Component {
     this.state = props;
   }
 
+  static getDerivedStateFromProps(props, state) {
+    return props;
+  }
+
   static formatTableRow(rows) {
     return rows.map( (row, i) =>
         (<tr key={i}>
           <td>{row.owner}</td>
           <td><PullsComponent url={row.repository.url} /></td>
           <td><CommitsComponent url={row.repository.url} /></td>
-          <td>{row.date}</td>
+          <td><a href={row.repository.html_url} target="_blank"><button className="btn btn-sm btn-info">Open Repo</button></a></td>
           <td><ReadmeComponent repositoryOwner={row.repository.owner.login} repositoryName={row.repository.name} /></td>
         </tr>)
     );
@@ -34,9 +38,9 @@ class TableComponent extends Component {
               <thead>
               <tr>
                 <th>Owner</th>
-                <th>Number of Pull Requests</th>
-                <th>Number of Commits</th>
-                <th>Date Searched</th>
+                <th># of PR</th>
+                <th># of Commits</th>
+                <th>Access Link</th>
                 <th>Open Readme</th>
               </tr>
               </thead>
