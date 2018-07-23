@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import {OauthSender} from "react-oauth-flow";
 import HeaderComponent from "../../components/HeaderComponent/HeaderComponent";
+import AppConstants from "../../AppConstants";
 
 class LoginPage extends Component {
 
@@ -9,7 +10,7 @@ class LoginPage extends Component {
         <OauthSender
             authorizeUrl="https://github.com/login/oauth/authorize"
             clientId="ffe341fedcc0d69175d7"
-            redirectUri="http://localhost:3000/landing-page"
+            redirectUri={AppConstants.CLIENT_REDIRECT_URI}
             render={({ url }) => (
                 <section>
                   <HeaderComponent />
