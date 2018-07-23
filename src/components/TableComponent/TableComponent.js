@@ -43,7 +43,7 @@ class TableComponent extends Component {
     if (!user) {
       return;
     }
-    this.service.get(AppConstants.SERVER_API_REPOSITORIES + user.name)
+    this.service.get(AppConstants.SERVER_API_REPOSITORIES + user.login)
     .then( res => this.setState({ searches: JSON.parse(res.text), user: user }))
     .catch( error => console.log(error));
   }
