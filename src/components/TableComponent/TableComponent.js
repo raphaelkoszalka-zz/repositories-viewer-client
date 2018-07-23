@@ -2,41 +2,63 @@ import React, { Component } from 'react';
 import ReadmeComponent from '../ReadmeComponent/ReadmeComponent';
 import PullsComponent from "../PullsComponent/PullsComponent";
 import CommitsComponent from "../CommitsComponent/CommitsComponent";
+import AppConstants from "../../AppConstants";
+import HttpRequest from "../../services/HttpServices";
 
 class TableComponent extends Component {
 
+  service = new HttpRequest();
+
   constructor(props) {
     super(props);
-    this.state = props;
+    this.state = { searches: [], user: this.props.user };
   }
 
-  static getDerivedStateFromProps(props, state) {
-    return props;
-  }
-
-  static sortTableRowsByDescendingDate(rows) {
-    return rows.sort(function(a,b){
-      return new Date(b.date) - new Date(a.date);
-    });
+  componentWillReceiveProps(newProps) {
+    this.getRepositories(newProps.user);
   }
 
   static formatTableRow(rows) {
-    rows = TableComponent.sortTableRowsByDescendingDate(rows);
     return rows.map( (row, i) =>
         (<tr key={i}>
-          <td>{row.owner}</td>
-          <td><PullsComponent url={row.repository.url} /></td>
-          <td><CommitsComponent url={row.repository.url} /></td>
-          <td>{row.date}</td>
-          <td><a href={row.repository.html_url} target="_blank"><button className="btn btn-sm btn-block btn-default">Open {row.repository.name}</button></a></td>
-          <td><ReadmeComponent repositoryOwner={row.repository.owner.login} repositoryName={row.repository.name} /></td>
+          <td>{row.repositoryOwner}</td>
+          <td><PullsComponent url={row.repositoryAPIUrl}/></td>
+          <td><CommitsComponent url={row.repositoryAPIUrl}/></td>
+          <td>{row.createdAt}</td>
+          <td>
+            <a href={row.repositoryHTMLUrl} target="_blank">
+              <button className="btn btn-sm btn-block btn-default">Open {row.repositoryName}</button>
+            </a>
+          </td>
+          <td><ReadmeComponent repositoryOwner={row.repositoryOwner} repositoryName={row.repositoryName}/></td>
         </tr>)
     );
   }
 
+  componentDidMount() {
+    this.getRepositories();
+  }
+
+  getRepositories(user) {
+    if (!user) {
+      return;
+    }
+    this.service.get(AppConstants.SERVER_API_REPOSITORIES + user.name)
+    .then( res => this.setState({ searches: JSON.parse(res.text), user: user }))
+    .catch( error => console.log(error));
+  }
+
   render() {
-    const { searches } = this.state;
+    const { searches, user } = this.state;
     const tableRows = TableComponent.formatTableRow(searches);
+
+    if (Object.keys(user).length === 0) {
+      return(
+          <div className="loader-wrapper">
+            <div className="loader"></div>
+          </div>
+      )
+    }
 
     return (
         <div className="col-xs-12 col-md-10 col-md-offset-1">
@@ -61,8 +83,6 @@ class TableComponent extends Component {
         </div>
     )
   }
-
-
 }
 
 export default TableComponent;

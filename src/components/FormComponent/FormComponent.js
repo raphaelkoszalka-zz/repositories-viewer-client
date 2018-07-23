@@ -15,8 +15,12 @@ class FormComponent extends Component {
     this.storeRepository = this.storeRepository.bind(this);
   }
 
+  static getDerivedStateFromProps(props, state) {
+    return state;
+  }
+
   static defaultState() {
-    return { repositoryOwner: '', repositoryList: [], invalidOwner: false, selectedRepository: {}, date: new Date() }
+    return { repositoryOwner: '', repositoryList: [], invalidOwner: false, selectedRepository: {}, disabled: true }
   }
 
   handleRepositoryGetResponse(res) {
@@ -26,40 +30,41 @@ class FormComponent extends Component {
 
   handleRepositoryOwnerChange(event) {
     this.setState( { repositoryOwner: event.target.value });
-      this.service.get(AppConstants.GITHUB_USER_REPOSITORIES.replace('{OWNER}', this.state.repositoryOwner))
-      .then( (res) => {
-        this.handleRepositoryGetResponse(res);
-      })
-      .catch( (error) => {
-        if (error.status === 404) {
-          this.setState( { invalidOwner: true } );
-        }
-      });
+    this.service.get(AppConstants.GITHUB_USER_REPOSITORIES.replace('{OWNER}', this.state.repositoryOwner))
+    .then( (res) => { this.handleRepositoryGetResponse(res); })
+    .catch( (error) => {
+      if (error.status === 404) {
+        this.setState( { invalidOwner: true } );
+      }
+    });
   }
 
   handleRepositoryChange(event) {
-    this.setState({selectedRepository: JSON.parse(event.target.value)});
+    this.setState({selectedRepository: JSON.parse(event.target.value), disabled: false});
   }
 
-  // TEMPORARY, WILL BE PERSISTED IN A BACKEND
   storeRepository(event) {
     event.preventDefault();
+
     const { selectedRepository, repositoryList, repositoryOwner } = this.state;
-    let storedSearches = JSON.parse(localStorage.getItem('storedSearches'));
+    const { user } = this.props;
 
-    storedSearches.push({
-      repository: repositoryList[selectedRepository],
-      date: new Date(),
-      owner: this.state.repositoryOwner
-    });
+    const payload = {
+      repositoryHTMLUrl: repositoryList[selectedRepository]['html_url'],
+      repositoryAPIUrl: repositoryList[selectedRepository]['url'],
+      repositoryOwner: repositoryOwner,
+      repositoryName: repositoryList[selectedRepository]['name'],
+      userLogin: user.login
+    };
 
-    localStorage.setItem('storedSearches', JSON.stringify(storedSearches));
+    this.service.post(AppConstants.SERVER_API_REPOSITORIES, payload)
+    .then(() => this.props.updateLandingPage())
+    .catch((error) => console.log(error));
 
-    this.props.updateLandingPage();
   }
 
   render() {
-    const { repositoryOwner, repositoryList, invalidOwner, selectedRepository } = this.state;
+    const { repositoryList, invalidOwner, selectedRepository, disabled } = this.state;
     const repositories = repositoryList.map((item, i) => (<option key={i} value={i}>{item.name}</option>));
 
     return (
@@ -73,7 +78,7 @@ class FormComponent extends Component {
                   <div className="col-lg-10">
                     <DebounceInput
                         className="form-control"
-                        debounceTimeout={1500}
+                        debounceTimeout={750}
                         onChange={this.handleRepositoryOwnerChange}
                         placeholder="Repository Owner"
                     />
@@ -90,18 +95,19 @@ class FormComponent extends Component {
                         id="repositoryName"
                         className="form-control"
                     >
-                      {/*
-                         if our repositories array is equal to
-                         zero then return no repos available,
-                         otherwise return available options
-                      */}
-                      { repositories.length === 0 ? (<option value="false">You must enter a valid repository owner</option>) : repositories }
+                      {
+                        repositories.length === 0 ?
+                            (<option value="false">No repos available</option>)
+                            :
+                            (<option value="false">Choose a repository from this owner</option>)
+                      }
+                      {repositories}
                     </select>
                   </div>
                 </div>
               </fieldset>
               <div className="text-right">
-                <button className="btn btn-default" onClick={this.storeRepository}>Check Repo Info</button>
+                <button className="btn btn-default" onClick={this.storeRepository} disabled={disabled}>Check Repo Info</button>
               </div>
             </form>
           </div>

@@ -5,21 +5,18 @@ class HeaderComponent extends Component {
   constructor(props) {
     super(props);
     this.state = props;
-    this.logout = this.logout.bind(this);
   }
 
   static getDerivedStateFromProps(props, state) {
     return props;
   }
 
-  logout() {
-    console.log(this.props);
-    debugger;
-    this.props.updateLandingPage();
+  static logout() {
+    window.location.href = '/login';
   }
 
   render() {
-    const { userStatus } = this.state;
+    const { user } = this.state;
 
     return (
         <nav className="navbar navbar-default">
@@ -27,10 +24,15 @@ class HeaderComponent extends Component {
             <div className="navbar-header">
               <a className="navbar-brand">Repo Analyzer</a>
             </div>
-            { userStatus && (
+            { user && (
                 <div className="collapse navbar-collapse" id="header-navbar">
                   <ul className="nav navbar-nav navbar-right">
-                    <li onClick={this.logout}><a>Logout</a></li>
+                    <li onClick={HeaderComponent.logout}>
+                      <a>
+                        <img alt={user.name} src={user.avatar_url} id="user-avatar"/>
+                        Sign out {user.name}
+                      </a>
+                    </li>
                   </ul>
                 </div>
             )}

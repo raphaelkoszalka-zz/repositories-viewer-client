@@ -1,55 +1,73 @@
 import React, { Component } from 'react';
 import FormComponent from "../../components/FormComponent/FormComponent";
 import TableComponent from "../../components/TableComponent/TableComponent";
-import LoginComponent from "../../components/LoginComponent/LoginComponent";
-import HttpRequest from "../../services/HttpServices";
 import HeaderComponent from "../../components/HeaderComponent/HeaderComponent";
+import HttpService from "../../services/HttpServices";
+import Redirect from "react-router-dom/es/Redirect";
+import AppConstants from "../../AppConstants";
 
 class LandingPage extends Component {
 
-  service = new HttpRequest();
+  service = new HttpService();
 
   constructor() {
     super();
     this.state = LandingPage.defaultState();
     this.handleFormComponentSubmit = this.handleFormComponentSubmit.bind(this);
-    this.handleUserLoginSubmit = this.handleUserLoginSubmit.bind(this);
-    this.handleUserLogoutSubmit = this.handleUserLogoutSubmit.bind(this);
+    this.handleLogin();
   }
 
   static defaultState() {
-    return { user: false, content: {}, searches: JSON.parse(localStorage.getItem('storedSearches')), ready: false }
+    return { user: {}, content: {}, update: false, ready: false, redirect: false }
+  }
+
+  static getParameterByName(name, url) {
+    // eslint-disable-next-line
+    name = name.replace(/[\[\]]/g, '\\$&');
+    const regex = new RegExp('[?&]' + name + '(=([^&#]*)|&|#|$)'),
+        results = regex.exec(url);
+    if (!results) return null;
+    if (!results[2]) return '';
+    return decodeURIComponent(results[2].replace(/\+/g, ' '));
   }
 
   handleFormComponentSubmit() {
-    this.setState({searches: JSON.parse(localStorage.getItem('storedSearches'))});
+    this.setState({ update: true });
   }
 
-  handleUserLoginSubmit() {
-    this.setState({user: true})
+  getUserFromGithub(token) {
+    this.service.get(AppConstants.GITHUB_ACCESS_TOKEN + token)
+    .then(res => {
+      this.setState({user: JSON.parse(res.text)});
+    });
   }
 
-  handleUserLogoutSubmit() {
-    this.setState({user: false});
+  handleLogin() {
+    const code = LandingPage.getParameterByName('code', window.location.href);
+    this.service.get(AppConstants.SERVER_API_AUTHENTICATE + code)
+    .then(res => {
+      const parsedResponse = JSON.parse(res.text);
+      if (parsedResponse.error) {
+        this.setState({redirect: true});
+        return;
+      }
+      this.getUserFromGithub(parsedResponse.access_token);
+    })
+    .catch(error => console.log(error));
   }
 
   render() {
-    const { searches, user } = this.state;
+    const { user, update, redirect } = this.state;
 
-    if (!user) {
-      return(
-          <div>
-            <HeaderComponent userStatus={user} updateLandingPage={this.handleUserLogoutSubmit} />
-            <LoginComponent updateLandingPage={this.handleUserLoginSubmit} />
-          </div>
-      )
+    if (redirect) {
+      return <Redirect to='/login'/>;
     }
 
     return(
         <div>
-          <HeaderComponent userStatus={user} updateLandingPage={this.handleUserLogoutSubmit} />
-          <FormComponent updateLandingPage={this.handleFormComponentSubmit} />
-          <TableComponent searches={searches} />
+          <HeaderComponent user={user} />
+          <FormComponent user={user} updateLandingPage={this.handleFormComponentSubmit} />
+          <TableComponent update={update} user={user} />
         </div>
     )
   }

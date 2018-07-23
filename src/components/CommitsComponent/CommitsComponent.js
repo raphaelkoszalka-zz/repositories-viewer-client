@@ -1,8 +1,7 @@
-import React, { Component } from 'react';
+import React from 'react';
 import HttpServices from '../../services/HttpServices';
-import AppConstants from "../../AppConstants";
 
-class PullsComponent extends Component {
+class PullsComponent extends React.Component {
 
   service = new HttpServices();
 
@@ -11,8 +10,8 @@ class PullsComponent extends Component {
     this.state = { url: props.url, commits: [] };
   }
 
-  getCommits(repository) {
-    const length = this.service.get(this.state.url + '/commits').then( res => {
+  getCommits() {
+    this.service.get(this.state.url + '/commits').then( res => {
       const commits = JSON.parse(res.text);
       this.setState({ commits: commits });
     });
